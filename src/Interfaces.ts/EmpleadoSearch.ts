@@ -89,7 +89,7 @@ export interface Categoria {
 export interface CentroCosto {
     codigo: string;
     concat: string;
-    empresas: Empresa;
+    empresasId: number;
 }
 export interface Turno {
     id: number;
@@ -137,6 +137,7 @@ export interface Empleado {
     seleccion?: Seleccion;
     celular: string;
     centroCosto?: CentroCosto;
+    centroCostoCodigo?: string;
     ci: string;
     concat: string;
     controlarHorario: string;
@@ -167,6 +168,7 @@ export interface Empleado {
     ipsBase: any;
     lugarNacimiento: string;
     localidad?: Localidad;
+    localidadId?: number;
     maestria: boolean;
     mediaCompleta: boolean;
     mediaIncompleta: boolean;
@@ -182,19 +184,21 @@ export interface Empleado {
     salariosDetalle?: SalarioDetalle[];
     salarioActual: number;
     sector?: Sector;
-    sectorInt: any;
+    sectorId?: number;
     semanalFijo: string;
     sexo?: string;
     subSector?: SubSector;
-    subSectorInt: any;
-    sucursales?: Sucursal;
+    subSectorId?: number;
+    sucursal?: Sucursal;
+    sucursalesId?: number;
     telefono: string;
     telefonoFamiliar: string;
     tecnicaturaCompleta: boolean;
     tecnicaturaIncompleta: boolean;
     tipoEmpleado?: TipoEmpleado;
     tipoIps: string;
-    turnos?: Turno;
+    turno?: Turno;
+    turnosId?: number;
     universitarioCompleto: boolean;
     universitarioIncompleto: boolean;
     viaSeleccion?: ViaSeleccion;
@@ -325,8 +329,6 @@ export const FUNCIONARIOINICIAL: Empleado = {
     personasHijos: [],
     empleadoFamilias: [],
     honorariosProfesionales: [],
-    sectorInt: null,
-    subSectorInt: null,
     frecuenciaId: null,
 };
 

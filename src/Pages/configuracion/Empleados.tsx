@@ -9,6 +9,7 @@ import ModalData from '../../Components/ModalData';
 import Select3 from '../../Components/Select3';
 import Swal from 'sweetalert2';
 import { BsFillTrash3Fill } from "react-icons/bs";
+import Select from 'react-select';
 
 const style: CSSProperties = {
     width: '242px',
@@ -56,17 +57,20 @@ const Empleados = () => {
     const [bandera, setBandera] = useState<banderasLaboral>(BANDERAINIT);
     const [insertSalario, setInsertSalario] = useState<Boolean>(false);
     const [insertHonorario, setInsertHonorario] = useState<Boolean>(false);
+    const [showModalSalario, setShowModalSalario] = useState(false);
+    const [showModalHonorario, setShowModalHonorario] = useState(false);
+
+    //cambios de estado
+    //=====SELECTORES
     const changeSelectFun = (item: any, name: string) => {
         console.log(item, name);
-        (name == 'localidad') ? cargarBarrios(item) : null;
-        (name == 'sector') ? cargarSubsectores(item) : null;
-        (name == 'turnos') ? changeTurno(item) : null;
         (name == 'subSector') ? traerConceptos(item) : null;
         setEmpleado(prev => ({ ...prev, [name]: item }))
     };
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
     };
+    //=====SELECTORES BUSCADOR
     const handleSelectChange = async (selectedItem: any) => {
         await setFunSearch(selectedItem);
         getEmpleadoById(selectedItem.id);
@@ -82,89 +86,6 @@ const Empleados = () => {
     const onChangeCheckbox = (event: ChangeEvent<HTMLInputElement>) => {
         setEmpleado(prev => ({ ...prev, [event.target.name]: event.target.checked }))
     };
-    const changeTurno = (turno: Turno) => {
-        if (empleado?.turnos != null && empleado?.subSector != null) {
-            getHorarios(empleado?.turnos.id, empleado?.subSector.id)
-        }
-    };
-    const cargarSubsectores = (sector: Sector) => {
-        const sectorActual: Sector = sectores.find((c: Sector) => c.id == sector.id)
-        if (sectorActual.subSectors != null) {
-            setSubsectores(sectorActual.subSectors)
-        }
-        setEmpleado(prev => ({ ...prev, ['subSector']: undefined }))
-    };
-
-    const cargarBarrios = (localidad: Localidad) => {
-        const ciudadActual: Localidad = localidades.find((c: Localidad) => c.id == localidad.id)
-        if (ciudadActual.barrios != null) {
-            setBarrios(ciudadActual.barrios)
-        }
-        setEmpleado(prev => ({ ...prev, ['barrio']: undefined }))
-    };
-
-    const onChangeSalarioAdd = (event: ChangeEvent<HTMLInputElement>) => {
-        setSalarioAdd(prev => ({ ...prev, [event.target.name]: event.target.value }))
-    }
-
-    const onChangeHonrarioAdd = (event: ChangeEvent<HTMLInputElement>) => {
-        setHonorarioAdd(prev => ({ ...prev, [event.target.name]: event.target.value }))
-    }
-
-    const enviarForm = async (e: React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        getEmpleados();
-        console.log('Formulario enviado');
-
-        console.log(empleado)
-        try {
-            const newFun = {
-                ...empleado,
-                empresasId: globalData?.user.empresaId,
-                honorariosProfesionales: empleado.honorariosProfesionales ? empleado.honorariosProfesionales : [],
-                salariosDetalle: empleado.salariosDetalle ? empleado.salariosDetalle : [],
-                salarioActual: empleado.salarioActual ? empleado.salarioActual : 0,
-                anticipo: empleado.anticipo ? empleado.anticipo : 0,
-                ipsBase: empleado.ipsBase ? empleado.ipsBase : 0,
-                empleadoFamilias: [],
-                personasHijos: [],
-            }
-
-            if (empleado?.id) {
-                put('/empleados/', newFun)
-                    .then(resp => {
-                        console.log('MI RESPONSE')
-                        console.log(resp)
-                        put('/empleadoConceptos/empleado/updateActivo7' + resp.data.id);
-                        post('/empleadoConceptos/empleado/' + resp.data.id, auxConceptoPrecios);
-                        Swal.fire({
-                            title: "El empleado se ha modificado con exito!!!",
-                            text: "El registro se ha modificado con exito",
-                            confirmButtonText: "Aceptar",
-                        });
-                    })
-            } else {
-                post('/empleados/', newFun)
-                    .then(resp => {
-                        console.log('MI RESPONSE')
-                        getEmpleadoById(resp.data.id)
-                        post('/empleadoConceptos/empleado/' + resp.data.id, auxConceptoPrecios);
-                        console.log(resp)
-                        Swal.fire({
-                            title: "El empleado se ha creado con exito!!!",
-                            text: "El registro se ha creado con exito",
-                            confirmButtonText: "Aceptar",
-                        });
-                    })
-            }
-
-        } catch (error) {
-            console.error(error);
-        }
-
-    };
-
-
 
     const getEmpleados = async () => {
         try {
@@ -185,75 +106,6 @@ const Empleados = () => {
             console.error(error);
         }
     }
-
-    const getHonorarioByFuncId = async () => {
-        try {
-            const response = await get('/honorarioprofesional/fun/' + empleado?.id)
-            return response.data;
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const getSalarioByFuncId = async () => {
-        try {
-            const response = await get('/salariodetalle/fun/' + empleado?.id)
-            return response.data;
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const getHorarios = async (turnoid: number, subSectorid: number) => {
-        try {
-            const response = await get('/horarios/' + turnoid + '/' + subSectorid);
-            response.data.map((h: Horario) => {
-                h.id,
-                    h.concat,
-                    h.rango,
-                    h.empresasId,
-                    h.horaDesde = toTime(h.horaDesde)
-                h.horaHasta = toTime(h.horaHasta)
-                h.tolerancia = toTime(h.tolerancia)
-                h.sabEntrada = toTime(h.sabEntrada)
-                h.sabSalida = toTime(h.sabSalida)
-                h.domEntrada = toTime(h.domEntrada)
-                h.domSalida = toTime(h.domSalida)
-            })
-            console.log(response.data);
-            setHorarios(response.data);
-            if (empleado.horarios) {
-                setEmpleado(prev => ({ ...prev, ['horarios']: empleado.horarios }))
-            }
-        } catch (error) {
-            console.error(error);
-        }
-
-    }
-
-    const traerConceptos = async (subSector: SubSector) => {
-        try {
-            const response = await get('/subSectorConcepto/subSector/' + subSector.id);
-            let auxEmpConceptos: ConceptosPreciosModel[] = response.data as ConceptosPreciosModel[];
-            if (auxEmpConceptos) {
-                const modifiedConceptos = auxEmpConceptos.map(concepto => {
-                    return {
-                        ...concepto,
-                        id: null,
-                        activo: 'S',
-                        precioConceptoses: concepto.precioConceptoses.map(precio => ({ ...precio, id: null, horaDesde: toTime(precio.horaDesde), horaHasta: toTime(precio.horaHasta) })),
-                    }
-                });
-                setAuxConceptoPrecios(modifiedConceptos);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-
-
-
     const getPaises = async () => {
         try {
             const response = await get('/pais/paises');
@@ -302,6 +154,7 @@ const Empleados = () => {
     const getCentroCosto = async () => {
         try {
             const response = await get('/centrocosto/centroscosto');
+            console.log('centros', response.data)
             setCentroscostos(response.data);
         } catch (error) {
             console.error(error);
@@ -371,49 +224,126 @@ const Empleados = () => {
             console.error(error);
         }
     }
-
-    const parceData = async () => {
-        console.log(empleado);
-        if (empleado?.id) {
-            console.log(empleado?.id)
-            const historialHonorario = await getHonorarioByFuncId();
-            const historialSalario = await getSalarioByFuncId();
-            if (empleado?.horarios) {
-                const { horaDesde, horaHasta, tolerancia, sabEntrada, sabSalida, domEntrada, domSalida, ...rest } = empleado?.horarios;
-                const h = {
-                    ...rest,
-                    horaDesde: toTime(horaDesde),
-                    horaHasta: toTime(horaHasta),
-                    tolerancia: toTime(tolerancia),
-                    sabEntrada: toTime(sabEntrada),
-                    sabSalida: toTime(sabSalida),
-                    domEntrada: toTime(domEntrada),
-                    domSalida: toTime(domSalida),
-                };
-                empleado.horarios = h;
-            }
-            const index = (historialHonorario && historialHonorario?.length > 0) ? (historialHonorario.length - 1) : -1;
-            console.log(historialHonorario)
-            console.log(index)
-            if (index > -1) {
-                console.log(historialHonorario[index].monto)
-                console.log('index mayor a -1')
-                setHonorarioActual(historialHonorario[index].monto)
-            } else {
-                setHonorarioActual(0)
-            }
-            setEmpleado(prev => ({ ...prev, honorariosProfesionales: historialHonorario }))
-            setEmpleado(prev => ({ ...prev, salariosDetalle: historialSalario }))
+    const getHorariosByTurnoId = async (turnosId?: number, subSectorId?: number) => {
+        try {
+            const response = await get('/horario/turnosubsector/' + turnosId + '/' + subSectorId);
+            setHorarios(response.data);
+            console.log('horario', response.data)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    const getSubSectorBySectorId = async (id: any) => {
+        try {
+            const response = await get('/subsector/sector/' + id);
+            setSubsectores(response.data);
+            console.log('subsector', response.data)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    const getBarrioByLocalidadId = async (id: any) => {
+        try {
+            const response = await get('/barrio/localidad/' + id);
+            setBarrios(response.data);
+            console.log('barrio', response.data)
+        } catch (error) {
+            console.error(error);
         }
     }
 
-    useEffect(() => {
-        parceData();
-    }, [empleado?.id]);
+    /* 
+    const changeTurno = (turno: Turno) => {
+        if (empleado?.turno != null && empleado?.subSector != null) {
+            // getHorarios(empleado?.turno.id, empleado?.subSector.id)
+        }
+    };
+    const cargarSubsectores = (sector: Sector) => {
+        const sectorActual: Sector = sectores.find((c: Sector) => c.id == sector.id)
+        if (sectorActual.subSectors != null) {
+            setSubsectores(sectorActual.subSectors)
+        }
+        setEmpleado(prev => ({ ...prev, ['subSector']: undefined }))
+    };
+
+    const cargarBarrios = (localidad: Localidad) => {
+        const ciudadActual: Localidad = localidades.find((c: Localidad) => c.id == localidad.id)
+        if (ciudadActual.barrios != null) {
+            setBarrios(ciudadActual.barrios)
+        }
+        setEmpleado(prev => ({ ...prev, ['barrio']: undefined }))
+    };
+ */
 
 
 
 
+    const getHonorarioByFuncId = async () => {
+        try {
+            const response = await get('/honorarioprofesional/fun/' + empleado?.id)
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const getSalarioByFuncId = async () => {
+        try {
+            const response = await get('/salariodetalle/fun/' + empleado?.id)
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    /*const getHorarios = async (turnoid: number, subSectorid: number) => {
+        try {
+            const response = await get('/horarios/' + turnoid + '/' + subSectorid);
+            response.data.map((h: Horario) => {
+                h.id,
+                    h.concat,
+                    h.rango,
+                    h.empresasId,
+                    h.horaDesde = toTime(h.horaDesde)
+                h.horaHasta = toTime(h.horaHasta)
+                h.tolerancia = toTime(h.tolerancia)
+                h.sabEntrada = toTime(h.sabEntrada)
+                h.sabSalida = toTime(h.sabSalida)
+                h.domEntrada = toTime(h.domEntrada)
+                h.domSalida = toTime(h.domSalida)
+            })
+            console.log(response.data);
+            setHorarios(response.data);
+            if (empleado.horarios) {
+                setEmpleado(prev => ({ ...prev, ['horarios']: empleado.horarios }))
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+    }*/
+
+    const traerConceptos = async (subSector: SubSector) => {
+        try {
+            const response = await get('/subSectorConcepto/subSector/' + subSector.id);
+            let auxEmpConceptos: ConceptosPreciosModel[] = response.data as ConceptosPreciosModel[];
+            if (auxEmpConceptos) {
+                const modifiedConceptos = auxEmpConceptos.map(concepto => {
+                    return {
+                        ...concepto,
+                        id: null,
+                        activo: 'S',
+                        precioConceptoses: concepto.precioConceptoses.map(precio => ({ ...precio, id: null, horaDesde: toTime(precio.horaDesde), horaHasta: toTime(precio.horaHasta) })),
+                    }
+                });
+                setAuxConceptoPrecios(modifiedConceptos);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // al iniciar
     useEffect(() => {
         getEmpleados();
         getPaises();
@@ -430,10 +360,59 @@ const Empleados = () => {
         getFrecuenciaPago();
         getCarreras();
     }, []);
+    // al cambiar de empleado
+    /*useEffect(() => {
+        parceData();
+    }, [empleado?.id]);*/
+    //al cambiar un selector dependiente que son 3 
 
     useEffect(() => {
-        (empleado?.turnos != null && empleado?.subSector != null) ? getHorarios(empleado?.turnos.id, empleado?.subSector.id) : null;
-    }, [empleado?.turnos]);
+        console.log('change useeffect getHorariosByTurnoId'),
+            (empleado?.turno != null && empleado?.subSector != null) && getHorariosByTurnoId(empleado?.turno.id, empleado?.subSector.id);
+    }, [empleado?.id, empleado?.turno,]);
+    useEffect(() => {
+        console.log('change useeffect getSubSectorBySectorId'),
+            (empleado?.sector) && getSubSectorBySectorId(empleado?.sector.id);
+    }, [empleado?.id, empleado?.sector]);
+    useEffect(() => {
+        console.log('change useeffect getBarrioByLocalidadId'),
+            (empleado?.localidad) && getBarrioByLocalidadId(empleado?.localidad.id);
+    }, [empleado?.id, empleado?.localidad]);
+
+    /* 
+    
+        const parceData = async () => {
+            console.log(empleado);
+            if (empleado?.id) {
+                await getBarrioByLocalidadId(empleado?.localidadId);
+                await getSubSectorBySectorId(empleado?.sectorId);
+                await getHorariosByTurnoId(empleado?.turnosId, empleado?.subSectorId);
+    
+    
+    
+    
+                console.log(empleado?.id)
+                         const historialHonorario = await getHonorarioByFuncId();
+                            const historialSalario = await getSalarioByFuncId();
+                
+                            const index = (historialHonorario && historialHonorario?.length > 0) ? (historialHonorario.length - 1) : -1;
+                            console.log(historialHonorario)
+                            console.log(index)
+                            if (index > -1) {
+                                console.log(historialHonorario[index].monto)
+                                console.log('index mayor a -1')
+                                setHonorarioActual(historialHonorario[index].monto)
+                            } else {
+                                setHonorarioActual(0)
+                            }
+                            setEmpleado(prev => ({ ...prev, honorariosProfesionales: historialHonorario }))
+                            setEmpleado(prev => ({ ...prev, salariosDetalle: historialSalario }))  
+            }
+        }
+     */
+
+
+
 
     const toTime = (timeString: any) => {
         if (timeString) {
@@ -488,18 +467,13 @@ const Empleados = () => {
 
 
     useEffect(() => {
-
-
         if (empleado.personasHijos != null || empleado.personasHijos != undefined)
             setPersonasHijos(empleado.personasHijos.length);
 
-
         if (empleado.empleadoFamilias != null || empleado.empleadoFamilias != undefined)
             setEmpleadoFamilia(empleado.empleadoFamilias.length);
-
     }, [empleado]);
 
-    const [showModalSalario, setShowModalSalario] = useState(false);
     const CloseModalSalario = () => {
         setShowModalSalario(false);
         setInsertSalario(false);
@@ -507,7 +481,6 @@ const Empleados = () => {
     const OpenModalSalario = () => {
         setShowModalSalario(true);
     };
-    const [showModalHonorario, setShowModalHonorario] = useState(false);
     const CloseModalHonorario = () => {
         setShowModalHonorario(false);
         setInsertHonorario(false);
@@ -647,6 +620,66 @@ const Empleados = () => {
             setEmpleado(prev => ({ ...prev, ['honorariosProfesionales']: honorarios }))
             setHonorarioActual(honorarioAdd.monto)
             CloseModalHonorario();
+        }
+
+    };
+    const onChangeSalarioAdd = (event: ChangeEvent<HTMLInputElement>) => {
+        setSalarioAdd(prev => ({ ...prev, [event.target.name]: event.target.value }))
+    }
+
+    const onChangeHonrarioAdd = (event: ChangeEvent<HTMLInputElement>) => {
+        setHonorarioAdd(prev => ({ ...prev, [event.target.name]: event.target.value }))
+    }
+
+    const enviarForm = async (e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        getEmpleados();
+        console.log('Formulario enviado');
+
+        console.log(empleado)
+        try {
+            const newFun = {
+                ...empleado,
+                empresasId: globalData?.user.empresaId,
+                honorariosProfesionales: empleado.honorariosProfesionales ? empleado.honorariosProfesionales : [],
+                salariosDetalle: empleado.salariosDetalle ? empleado.salariosDetalle : [],
+                salarioActual: empleado.salarioActual ? empleado.salarioActual : 0,
+                anticipo: empleado.anticipo ? empleado.anticipo : 0,
+                ipsBase: empleado.ipsBase ? empleado.ipsBase : 0,
+                empleadoFamilias: [],
+                personasHijos: [],
+            }
+
+            if (empleado?.id) {
+                put('/empleados/', newFun)
+                    .then(resp => {
+                        console.log('MI RESPONSE')
+                        console.log(resp)
+                        put('/empleadoConceptos/empleado/updateActivo7' + resp.data.id);
+                        post('/empleadoConceptos/empleado/' + resp.data.id, auxConceptoPrecios);
+                        Swal.fire({
+                            title: "El empleado se ha modificado con exito!!!",
+                            text: "El registro se ha modificado con exito",
+                            confirmButtonText: "Aceptar",
+                        });
+                    })
+            } else {
+                post('/empleados/', newFun)
+                    .then(resp => {
+                        console.log('MI RESPONSE')
+                        getEmpleadoById(resp.data.id)
+                        post('/empleadoConceptos/empleado/' + resp.data.id, auxConceptoPrecios);
+                        console.log(resp)
+                        Swal.fire({
+                            title: "El empleado se ha creado con exito!!!",
+                            text: "El registro se ha creado con exito",
+                            confirmButtonText: "Aceptar",
+                        });
+                    })
+            }
+
+        } catch (error) {
+            console.error(error);
         }
 
     };
@@ -1039,8 +1072,16 @@ const Empleados = () => {
                                                     <label htmlFor='centroCosto' className='form-label'>
                                                         Centro costo:
                                                     </label>
-                                                    {centroscostos ? (<Select3 options={centroscostos} valueKey="codigo" labelKey="concat" value={empleado?.centroCosto} onChange={(e) => changeSelectFun(e, 'centroCosto')} placeholder="Seleccione CentroCosto"
-                                                    />) : (<div>Cargando...</div>)}
+                                                    {centroscostos ? (
+                                                        <Select3
+                                                            options={centroscostos}
+                                                            valueKey="codigo"
+                                                            labelKey="concat"
+                                                            value={centroscostos.find((option) => option.codigo === empleado?.centroCostoCodigo)}
+                                                            onChange={(e) => changeSelectFun(e, 'centroCosto')}
+                                                            placeholder="Seleccione CentroCosto"
+                                                        />
+                                                    ) : <div>Cargando...</div>}
                                                 </div>
                                             </div>
                                         </div>
@@ -1051,7 +1092,7 @@ const Empleados = () => {
                                                     <label htmlFor='sucursal' className='form-label'>
                                                         Sucursal
                                                     </label>
-                                                    {sucursales ? (<Select3 options={sucursales} valueKey="id" labelKey="descripcion" value={empleado?.sucursales} onChange={(e) => changeSelectFun(e, 'sucursales')} placeholder="Seleccione sucursal"
+                                                    {sucursales ? (<Select3 options={sucursales} valueKey="id" labelKey="descripcion" value={empleado?.sucursal} onChange={(e) => changeSelectFun(e, 'sucursal')} placeholder="Seleccione sucursal"
                                                     />) : (<div>Cargando...</div>)}
                                                 </div>
                                             </div>
@@ -1083,7 +1124,7 @@ const Empleados = () => {
                                                     <label htmlFor='turno' className='form-label'>
                                                         Turno:
                                                     </label>
-                                                    {turnos ? (<Select3 options={turnos} valueKey="id" labelKey="descripcion" value={empleado?.turnos} onChange={(e) => changeSelectFun(e, 'turnos')} placeholder="Seleccione Turno"
+                                                    {turnos ? (<Select3 options={turnos} valueKey="id" labelKey="descripcion" value={empleado?.turno} onChange={(e) => changeSelectFun(e, 'turno')} placeholder="Seleccione Turno"
                                                     />) : (<div>Cargando...</div>)}
                                                 </div>
                                             </div>
@@ -1092,7 +1133,7 @@ const Empleados = () => {
                                                     <label htmlFor='horario' className='form-label'>
                                                         Horario:
                                                     </label>
-                                                    {horarios ? (<Select3 options={horarios} valueKey="id" labelKey="concat" value={empleado.horarios} onChange={(e) => changeSelectFun(e, 'horarios')} placeholder="Seleccione Horario"
+                                                    {horarios ? (<Select3 options={horarios} valueKey="id" labelKey="concat" value={empleado?.horario} onChange={(e) => changeSelectFun(e, 'horario')} placeholder="Seleccione Horario"
                                                     />) : (<div>Cargando...</div>)}
                                                 </div>
                                             </div>
