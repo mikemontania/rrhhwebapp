@@ -160,7 +160,8 @@ export interface Empleado {
     frecuenciaId: any;
     frecuenciaPago?: FrecuenciaPago;
     honorariosProfesionales?: SalarioDetalle[];
-    horarios?: Horario;
+    horario?: Horario;
+    horariosId?: number;
     imagen: string;
     ingresoIps: string;
     salidaIps: string;

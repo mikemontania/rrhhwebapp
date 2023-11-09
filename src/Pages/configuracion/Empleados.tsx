@@ -64,7 +64,7 @@ const Empleados = () => {
     //=====SELECTORES
     const changeSelectFun = (item: any, name: string) => {
         console.log(item, name);
-        (name == 'subSector') ? traerConceptos(item) : null;
+        (name == 'subSector') && traerConceptos(item);
         setEmpleado(prev => ({ ...prev, [name]: item }))
     };
     const handleTabChange = (tab: string) => {
@@ -251,30 +251,7 @@ const Empleados = () => {
             console.error(error);
         }
     }
-
-    /* 
-    const changeTurno = (turno: Turno) => {
-        if (empleado?.turno != null && empleado?.subSector != null) {
-            // getHorarios(empleado?.turno.id, empleado?.subSector.id)
-        }
-    };
-    const cargarSubsectores = (sector: Sector) => {
-        const sectorActual: Sector = sectores.find((c: Sector) => c.id == sector.id)
-        if (sectorActual.subSectors != null) {
-            setSubsectores(sectorActual.subSectors)
-        }
-        setEmpleado(prev => ({ ...prev, ['subSector']: undefined }))
-    };
-
-    const cargarBarrios = (localidad: Localidad) => {
-        const ciudadActual: Localidad = localidades.find((c: Localidad) => c.id == localidad.id)
-        if (ciudadActual.barrios != null) {
-            setBarrios(ciudadActual.barrios)
-        }
-        setEmpleado(prev => ({ ...prev, ['barrio']: undefined }))
-    };
- */
-
+ 
 
 
 
@@ -296,32 +273,7 @@ const Empleados = () => {
         }
     }
 
-    /*const getHorarios = async (turnoid: number, subSectorid: number) => {
-        try {
-            const response = await get('/horarios/' + turnoid + '/' + subSectorid);
-            response.data.map((h: Horario) => {
-                h.id,
-                    h.concat,
-                    h.rango,
-                    h.empresasId,
-                    h.horaDesde = toTime(h.horaDesde)
-                h.horaHasta = toTime(h.horaHasta)
-                h.tolerancia = toTime(h.tolerancia)
-                h.sabEntrada = toTime(h.sabEntrada)
-                h.sabSalida = toTime(h.sabSalida)
-                h.domEntrada = toTime(h.domEntrada)
-                h.domSalida = toTime(h.domSalida)
-            })
-            console.log(response.data);
-            setHorarios(response.data);
-            if (empleado.horarios) {
-                setEmpleado(prev => ({ ...prev, ['horarios']: empleado.horarios }))
-            }
-        } catch (error) {
-            console.error(error);
-        }
-
-    }*/
+    
 
     const traerConceptos = async (subSector: SubSector) => {
         try {
@@ -378,22 +330,16 @@ const Empleados = () => {
         console.log('change useeffect getBarrioByLocalidadId'),
             (empleado?.localidad) && getBarrioByLocalidadId(empleado?.localidad.id);
     }, [empleado?.id, empleado?.localidad]);
-
-    /* 
+    useEffect(() => {
+        salarioChange()
+    }, [empleado?.id]);
+ 
     
-        const parceData = async () => {
-            console.log(empleado);
+        const salarioChange = async () => { 
             if (empleado?.id) {
-                await getBarrioByLocalidadId(empleado?.localidadId);
-                await getSubSectorBySectorId(empleado?.sectorId);
-                await getHorariosByTurnoId(empleado?.turnosId, empleado?.subSectorId);
-    
-    
-    
-    
-                console.log(empleado?.id)
+ 
                          const historialHonorario = await getHonorarioByFuncId();
-                            const historialSalario = await getSalarioByFuncId();
+                         const historialSalario = await getSalarioByFuncId();
                 
                             const index = (historialHonorario && historialHonorario?.length > 0) ? (historialHonorario.length - 1) : -1;
                             console.log(historialHonorario)
@@ -409,7 +355,7 @@ const Empleados = () => {
                             setEmpleado(prev => ({ ...prev, salariosDetalle: historialSalario }))  
             }
         }
-     */
+      
 
 
 
@@ -1257,7 +1203,7 @@ const Empleados = () => {
                                             </div>
                                         </div>
 
-                                        {/*   <div className='form-row'>
+                                          <div className='form-row'>
                                             {(globalData?.user.rol === 'Informatica' || globalData?.user.rol === 'Directores') ?
 
                                                 <div className='col-md-4 col-sm-12'>
@@ -1284,7 +1230,7 @@ const Empleados = () => {
                                                 </div>
                                                 : null
                                             }
-                                        </div> */}
+                                        </div>  
 
                                         <div className='btn-group mr-5'>
                                             <button type='submit' className='btn btn-secondary'>  Enviar  </button>
