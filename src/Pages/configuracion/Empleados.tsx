@@ -4,7 +4,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import { ContextAuthType } from '../../Interfaces.ts/AuthInterface';
 import { get, post, put, remove } from '../../Axios/AxiosService';
 //import { sinImagen } from '../Assets/sinimagen.jpg';
-import { EmpleadoSearch, Sector, Localidad, Estadocivil, Nacionalidad, Pais, CentroCosto, Categoria, Turno, Seleccion, FrecuenciaPago, TipoEmpleado, Barrio, SubSector, Empleado, Sexo, Horario, SiNo, PorcentajeIps, Carrera, SalarioDetalle, SALARIOINICIAL, FUNCIONARIOINICIAL, ConceptosPreciosModel } from '../../Interfaces.ts/EmpleadoSearch';
+import { EmpleadoSearch, SubSector, Empleado, SalarioDetalle, SALARIOINICIAL, FUNCIONARIOINICIAL, ConceptosPreciosModel } from '../../Interfaces.ts/EmpleadoSearch';
 import ModalData from '../../Components/ModalData';
 import Select3 from '../../Components/Select3';
 import Swal from 'sweetalert2';
@@ -754,7 +754,7 @@ const Empleados = () => {
                                                     <input onChange={onChangeInput} type='date'
                                                         id='fechaNacimiento'
                                                         name='fechaNacimiento'
-                                                        value={empleado?.fechaNacimiento}
+                                                        value={empleado?.fechaNacimiento ? new Date(empleado.fechaNacimiento).toISOString().split('T')[0] : undefined}
                                                         className='form-control' required />
                                                 </div>
                                             </div>
@@ -1040,7 +1040,7 @@ const Empleados = () => {
                                                             options={centroscostos}
                                                             valueKey="codigo"
                                                             labelKey="concat"
-                                                            value={centroscostos.find((option) => option.codigo === empleado?.centroCostoCodigo)}
+                                                            value={centroscostos.find((option) => option.codigo === empleado?.centroCosto?.codigo)}
                                                             onChange={(e) => changeSelectFun(e, 'centroCosto')}
                                                             placeholder="Seleccione CentroCosto"
                                                         />
@@ -1118,7 +1118,10 @@ const Empleados = () => {
                                                     <label htmlFor='fechaIngreso' className='form-label'>
                                                         Fecha Ingreso:
                                                     </label>
-                                                    <input onChange={onChangeInput} type='date' className='form-control' id='fechaIngreso' name='fechaIngreso' value={empleado?.fechaIngreso || ''} required />
+                                                    <input onChange={onChangeInput} type='date' className='form-control' id='fechaIngreso' name='fechaIngreso'
+                                                        value={empleado?.fechaIngreso ? new Date(empleado.fechaIngreso).toISOString().split('T')[0] : undefined}
+
+                                                        required />
 
                                                 </div>
                                             </div>
@@ -1127,7 +1130,10 @@ const Empleados = () => {
                                                     <label htmlFor='fechaSalida' className='form-label'>
                                                         Fecha Salida:
                                                     </label>
-                                                    <input onChange={onChangeInput} type='date' className='form-control' id='fechaSalida' name='fechaSalida' value={empleado?.fechaSalida || ''} />
+                                                    <input onChange={onChangeInput} type='date' className='form-control' id='fechaSalida'
+                                                        name='fechaSalida'
+                                                        value={empleado?.fechaSalida ? new Date(empleado.fechaSalida).toISOString().split('T')[0] : undefined}
+                                                    />
                                                 </div>
                                             </div>
                                             <div className='col-md-4 col-sm-12'>
@@ -1146,7 +1152,9 @@ const Empleados = () => {
                                                     <label htmlFor='ingresoIps' className='form-label'>
                                                         Ingreso Ips:
                                                     </label>
-                                                    <input onChange={onChangeInput} type='date' className='form-control' id='ingresoIps' name='ingresoIps' value={empleado?.ingresoIps || ''} required />
+                                                    <input onChange={onChangeInput} type='date' className='form-control' id='ingresoIps' name='ingresoIps'
+                                                        value={empleado?.ingresoIps ? new Date(empleado.ingresoIps).toISOString().split('T')[0] : undefined}
+                                                        required />
                                                 </div>
                                             </div>
                                             <div className='col-md-4 col-sm-12'>
@@ -1154,7 +1162,8 @@ const Empleados = () => {
                                                     <label htmlFor='salidaIps' className='form-label'>
                                                         Ingreso Salida:
                                                     </label>
-                                                    <input onChange={onChangeInput} type='date' className='form-control' id='salidaIps' name='salidaIps' value={empleado?.salidaIps || ''} />
+                                                    <input onChange={onChangeInput} type='date' className='form-control' id='salidaIps' name='salidaIps'
+                                                        value={empleado?.salidaIps ? new Date(empleado.salidaIps).toISOString().split('T')[0] : undefined} />
                                                 </div>
                                             </div>
                                             <div className='col-md-4 col-sm-12'>
