@@ -64,7 +64,24 @@ const Empleados = () => {
     //=====SELECTORES
     const changeSelectFun = (item: any, name: string) => {
         console.log(item, name);
-        (name == 'subSector') && traerConceptos(item);
+        if (item && item != undefined) {
+            (name == 'pais') && setEmpleado(prev => ({ ...prev, ['paisesId']: item.id }));
+            (name == 'nacionalidad') && setEmpleado(prev => ({ ...prev, ['nacionalidadesId']: item.id }));
+            (name == 'localidad') && setEmpleado(prev => ({ ...prev, ['localidadId']: item.id }));
+            (name == 'barrio') && setEmpleado(prev => ({ ...prev, ['barrioId']: item.id }));
+            (name == 'seleccion') && setEmpleado(prev => ({ ...prev, ['viaSeleccion']: item.id }));
+            (name == 'categoria') && setEmpleado(prev => ({ ...prev, ['categoriaId']: item.id }));
+            (name == 'centroCosto') && setEmpleado(prev => ({ ...prev, ['centroCostoCodigo']: item.id }));
+            (name == 'sucursal') && setEmpleado(prev => ({ ...prev, ['sucursalesId']: item.id }));
+            (name == 'sector') && setEmpleado(prev => ({ ...prev, ['sectorId']: item.id }));
+            (name == 'subSector') && setEmpleado(prev => ({ ...prev, ['subSectorId']: item.id }));
+            (name == 'turno') && setEmpleado(prev => ({ ...prev, ['turnosId']: item.id }));
+            (name == 'horario') && setEmpleado(prev => ({ ...prev, ['horariosId']: item.id }));
+            (name == 'frecuenciaPago') && setEmpleado(prev => ({ ...prev, ['frecuenciaPagoId']: item.id }));
+            (name == 'tipoEmpleado') && setEmpleado(prev => ({ ...prev, ['tipoEmpleadoId']: item.id }));
+            (name == 'carrera') && setEmpleado(prev => ({ ...prev, ['carreraId']: item.id }));
+        }
+        //     (name == 'subSector') && traerConceptos(item); 
         setEmpleado(prev => ({ ...prev, [name]: item }))
     };
     const handleTabChange = (tab: string) => {
@@ -251,7 +268,7 @@ const Empleados = () => {
             console.error(error);
         }
     }
- 
+
 
 
 
@@ -273,7 +290,7 @@ const Empleados = () => {
         }
     }
 
-    
+
 
     const traerConceptos = async (subSector: SubSector) => {
         try {
@@ -333,29 +350,29 @@ const Empleados = () => {
     useEffect(() => {
         salarioChange()
     }, [empleado?.id]);
- 
-    
-        const salarioChange = async () => { 
-            if (empleado?.id) {
- 
-                         const historialHonorario = await getHonorarioByFuncId();
-                         const historialSalario = await getSalarioByFuncId();
-                
-                            const index = (historialHonorario && historialHonorario?.length > 0) ? (historialHonorario.length - 1) : -1;
-                            console.log(historialHonorario)
-                            console.log(index)
-                            if (index > -1) {
-                                console.log(historialHonorario[index].monto)
-                                console.log('index mayor a -1')
-                                setHonorarioActual(historialHonorario[index].monto)
-                            } else {
-                                setHonorarioActual(0)
-                            }
-                            setEmpleado(prev => ({ ...prev, honorariosProfesionales: historialHonorario }))
-                            setEmpleado(prev => ({ ...prev, salariosDetalle: historialSalario }))  
+
+
+    const salarioChange = async () => {
+        if (empleado?.id) {
+
+            const historialHonorario = await getHonorarioByFuncId();
+            const historialSalario = await getSalarioByFuncId();
+
+            const index = (historialHonorario && historialHonorario?.length > 0) ? (historialHonorario.length - 1) : -1;
+            console.log(historialHonorario)
+            console.log(index)
+            if (index > -1) {
+                console.log(historialHonorario[index].monto)
+                console.log('index mayor a -1')
+                setHonorarioActual(historialHonorario[index].monto)
+            } else {
+                setHonorarioActual(0)
             }
+            setEmpleado(prev => ({ ...prev, honorariosProfesionales: historialHonorario }))
+            setEmpleado(prev => ({ ...prev, salariosDetalle: historialSalario }))
         }
-      
+    }
+
 
 
 
@@ -597,7 +614,7 @@ const Empleados = () => {
             }
 
             if (empleado?.id) {
-                put('/empleados/', newFun)
+                put('/empleado/', newFun)
                     .then(resp => {
                         console.log('MI RESPONSE')
                         console.log(resp)
@@ -610,7 +627,7 @@ const Empleados = () => {
                         });
                     })
             } else {
-                post('/empleados/', newFun)
+                post('/empleado/', newFun)
                     .then(resp => {
                         console.log('MI RESPONSE')
                         getEmpleadoById(resp.data.id)
@@ -1203,7 +1220,7 @@ const Empleados = () => {
                                             </div>
                                         </div>
 
-                                          <div className='form-row'>
+                                        <div className='form-row'>
                                             {(globalData?.user.rol === 'Informatica' || globalData?.user.rol === 'Directores') ?
 
                                                 <div className='col-md-4 col-sm-12'>
@@ -1230,7 +1247,7 @@ const Empleados = () => {
                                                 </div>
                                                 : null
                                             }
-                                        </div>  
+                                        </div>
 
                                         <div className='btn-group mr-5'>
                                             <button type='submit' className='btn btn-secondary'>  Enviar  </button>

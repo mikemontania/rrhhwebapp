@@ -131,9 +131,12 @@ export interface Empleado {
     activo: string;
     anticipo: number;
     barrio?: Barrio;
+    barrioId?: number;
     bonificacion: string;
     carrera?: Carrera;
+    carreraId?: number;
     categoria?: Categoria;
+    categoriaId?: number;
     seleccion?: Seleccion;
     celular: string;
     centroCosto?: CentroCosto;
@@ -159,6 +162,7 @@ export interface Empleado {
     fechaSalida: string;
     frecuenciaId: any;
     frecuenciaPago?: FrecuenciaPago;
+    frecuenciaPagoId?: number;
     honorariosProfesionales?: SalarioDetalle[];
     horario?: Horario;
     horariosId?: number;
@@ -174,10 +178,12 @@ export interface Empleado {
     mediaCompleta: boolean;
     mediaIncompleta: boolean;
     nacionalidad?: Nacionalidad;
+    nacionalidadesId?: number;
     nombre: string;
     nroTarjeta: string;
     observacion: string;
     pais?: Pais;
+    paisesId?: number;
     path: string;
     personasHijos?: PersonaHijo[];
     porcentajeIps?: PorcentajeIps;
@@ -192,17 +198,19 @@ export interface Empleado {
     subSectorId?: number;
     sucursal?: Sucursal;
     sucursalesId?: number;
+    viaSeleccion?: number;
     telefono: string;
     telefonoFamiliar: string;
     tecnicaturaCompleta: boolean;
     tecnicaturaIncompleta: boolean;
     tipoEmpleado?: TipoEmpleado;
+    tipoEmpleadoId?: number;
     tipoIps: string;
     turno?: Turno;
     turnosId?: number;
     universitarioCompleto: boolean;
     universitarioIncompleto: boolean;
-    viaSeleccion?: ViaSeleccion;
+
 }
 
 export interface Horario {
@@ -234,7 +242,7 @@ export interface EstadoCivil {
     id: number
     descripcion: string
 }
-export interface ViaSeleccion {
+export interface Seleccion {
     id: number
     descripcion: string
 }
@@ -244,6 +252,7 @@ export interface SalarioDetalle {
     monto: number;
     observacion: string;
     activo: string;
+    empleadoId: number
 }
 
 export interface PorcentajeIps {
@@ -279,6 +288,7 @@ export const SALARIOINICIAL: SalarioDetalle = {
     monto: 0,
     observacion: '',
     activo: 'S',
+    empleadoId: 0
 }
 
 export const FUNCIONARIOINICIAL: Empleado = {
