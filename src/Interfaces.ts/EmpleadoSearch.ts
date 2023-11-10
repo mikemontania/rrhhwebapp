@@ -157,9 +157,9 @@ export interface Empleado {
     estadoCivil?: EstadoCivil;
     estudios: string;
     familiaresEmpresa: string;
-    fechaIngreso?: string;
-    fechaNacimiento?: Date;
-    fechaSalida?: Date;
+    fechaIngreso: string;
+    fechaNacimiento: string;
+    fechaSalida: string;
     frecuenciaId: any;
     frecuenciaPago?: FrecuenciaPago;
     frecuenciaPagoId?: number;
@@ -167,8 +167,8 @@ export interface Empleado {
     horario?: Horario;
     horariosId?: number;
     imagen: string;
-    ingresoIps?: Date;
-    salidaIps?: Date;
+    ingresoIps: string;
+    salidaIps: string;
     interno: string;
     ipsBase: any;
     lugarNacimiento: string;
@@ -295,10 +295,10 @@ export const FUNCIONARIOINICIAL: Empleado = {
 
     nroTarjeta: '',
     fechaIngreso: '',
-   // ingresoIps: '',
+    ingresoIps: '',
     nombre: '',
     ci: '',
-  //  fechaNacimiento: '',
+    fechaNacimiento: '',
     direccion: '',
     path: '',
     bonificacion: '',
@@ -310,14 +310,14 @@ export const FUNCIONARIOINICIAL: Empleado = {
     lugarNacimiento: '',
     familiaresEmpresa: '',
     controlarHorario: '',
-   // fechaSalida: '',
+    fechaSalida: '',
     activo: '',
     empresasId: 0,
     salarioActual: 0,
     anticipo: 0,
     observacion: '',
     imagen: '',
-  //  salidaIps: '',
+    salidaIps: '',
     interno: '',
     corporativo: '',
     escolarCompleta: false,
