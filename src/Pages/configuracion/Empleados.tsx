@@ -4,7 +4,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import { ContextAuthType } from '../../Interfaces.ts/AuthInterface';
 import { get, post, put, remove } from '../../Axios/AxiosService';
 //import { sinImagen } from '../Assets/sinimagen.jpg';
-import { EmpleadoSearch,  SubSector, Empleado,   SalarioDetalle, SALARIOINICIAL, FUNCIONARIOINICIAL, ConceptosPreciosModel } from '../../Interfaces.ts/EmpleadoSearch';
+import { EmpleadoSearch, SubSector, Empleado, SalarioDetalle, SALARIOINICIAL, FUNCIONARIOINICIAL, ConceptosPreciosModel } from '../../Interfaces.ts/EmpleadoSearch';
 import ModalData from '../../Components/ModalData';
 import Select3 from '../../Components/Select3';
 import Swal from 'sweetalert2';
@@ -66,12 +66,13 @@ const Empleados = () => {
         console.log(item, name);
         if (item && item != undefined) {
             (name == 'pais') && setEmpleado(prev => ({ ...prev, ['paisesId']: item.id }));
+            (name == 'estadoCivil') && setEmpleado(prev => ({ ...prev, ['estadoCivilId']: item.id }));
             (name == 'nacionalidad') && setEmpleado(prev => ({ ...prev, ['nacionalidadesId']: item.id }));
             (name == 'localidad') && setEmpleado(prev => ({ ...prev, ['localidadId']: item.id }));
             (name == 'barrio') && setEmpleado(prev => ({ ...prev, ['barrioId']: item.id }));
             (name == 'seleccion') && setEmpleado(prev => ({ ...prev, ['viaSeleccion']: item.id }));
             (name == 'categoria') && setEmpleado(prev => ({ ...prev, ['categoriaId']: item.id }));
-            (name == 'centroCosto') && setEmpleado(prev => ({ ...prev, ['centroCostoCodigo']: item.id }));
+            (name == 'centroCosto') && setEmpleado(prev => ({ ...prev, ['centroCostoCodigo']: item.codigo }));
             (name == 'sucursal') && setEmpleado(prev => ({ ...prev, ['sucursalesId']: item.id }));
             (name == 'sector') && setEmpleado(prev => ({ ...prev, ['sectorId']: item.id }));
             (name == 'subSector') && setEmpleado(prev => ({ ...prev, ['subSectorId']: item.id }));
@@ -458,9 +459,12 @@ const Empleados = () => {
         e.preventDefault();
         console.log(empleado)
         if (empleado && empleado?.id) {
-            console.log('POST'); 
+            console.log('POST');
             try {
-                const modif = await post('/salariosDetalle/' + empleado?.id, salarioAdd);
+                const empleadoId = empleado.id;
+                setSalarioAdd({ ...salarioAdd, empleadoId })
+                salarioAdd.empleadoId = empleado?.id
+                const modif = await post('/salariodetalle/', salarioAdd);
                 const historialSalario = await getSalarioByFuncId();
                 console.log(historialSalario)
                 const salarioDetalles = historialSalario;
@@ -493,11 +497,55 @@ const Empleados = () => {
 
     };
 
+
+
+    //Honorarios
+    const guardarHonorario = async (e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log(empleado)
+        if (empleado && empleado.id) {
+            console.log('POST');
+            try {
+                const empleadoId = empleado.id;
+                setHonorarioAdd({ ...honorarioAdd, empleadoId })
+                const modif = await post('/honorarioprofesional/', honorarioAdd);
+                const historialHonorario = await getHonorarioByFuncId();
+                console.log(historialHonorario)
+                const honorariosProfesionales = historialHonorario;
+                const index = (honorariosProfesionales) ? (honorariosProfesionales.length - 1) : -1;
+                (honorariosProfesionales) ? console.log(honorariosProfesionales[index]) : console.log(index);
+                if (index && index >= 0) {
+                    setEmpleado(prev => ({ ...prev, ['honorariosProfesionales']: historialHonorario }))
+                    setHonorarioActual(honorarioAdd.monto)
+                } else {
+                    setHonorarioActual(0)
+                }
+                CloseModalHonorario();
+                setHonorarioAdd(SALARIOINICIAL);
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            console.log('ONMEMORY');
+            console.log(empleado);
+            let honorarios: SalarioDetalle[];
+            if (empleado?.honorariosProfesionales) {
+                honorarios = [...empleado?.honorariosProfesionales, honorarioAdd];
+            } else {
+                honorarios = [honorarioAdd];
+            }
+            setEmpleado(prev => ({ ...prev, ['honorariosProfesionales']: honorarios }))
+            setHonorarioActual(honorarioAdd.monto)
+            CloseModalHonorario();
+        }
+
+    };
+
     const removeSalario = async (item: SalarioDetalle) => {
         console.log(item);
         try {
             if (empleado && empleado?.id) {
-                const modif = await remove('/salariosDetalle/' + item?.id);
+                const modif = await remove('/salariodetalle/' + item?.id);
                 const historialSalario = await getSalarioByFuncId();
 
                 setEmpleado(prev => ({ ...prev, ['salariosDetalle']: historialSalario }))
@@ -547,45 +595,6 @@ const Empleados = () => {
     };
 
 
-    //Honorarios
-    const guardarHonorario = async (e: React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log(empleado)
-        if (empleado && empleado?.id) {
-            console.log('POST');
-            try {
-                const modif = await post('/honorariosProfesionales/' + empleado?.id, honorarioAdd);
-                const historialHonorario = await getHonorarioByFuncId();
-                console.log(historialHonorario)
-                const honorariosProfesionales = historialHonorario;
-                const index = (honorariosProfesionales) ? (honorariosProfesionales.length - 1) : -1;
-                (honorariosProfesionales) ? console.log(honorariosProfesionales[index]) : console.log(index);
-                if (index && index >= 0) {
-                    setEmpleado(prev => ({ ...prev, ['honorariosProfesionales']: historialHonorario }))
-                    setHonorarioActual(honorarioAdd.monto)
-                } else {
-                    setHonorarioActual(0)
-                }
-                CloseModalHonorario();
-                setHonorarioAdd(SALARIOINICIAL);
-            } catch (error) {
-                console.error(error);
-            }
-        } else {
-            console.log('ONMEMORY');
-            console.log(empleado);
-            let honorarios: SalarioDetalle[];
-            if (empleado?.honorariosProfesionales) {
-                honorarios = [...empleado?.honorariosProfesionales, honorarioAdd];
-            } else {
-                honorarios = [honorarioAdd];
-            }
-            setEmpleado(prev => ({ ...prev, ['honorariosProfesionales']: honorarios }))
-            setHonorarioActual(honorarioAdd.monto)
-            CloseModalHonorario();
-        }
-
-    };
     const onChangeSalarioAdd = (event: ChangeEvent<HTMLInputElement>) => {
         setSalarioAdd(prev => ({ ...prev, [event.target.name]: event.target.value }))
     }
@@ -614,7 +623,7 @@ const Empleados = () => {
             }
 
             if (empleado?.id) {
-                put('/empleado/', newFun)
+                put('/empleado/' + empleado.id, newFun)
                     .then(resp => {
                         console.log('MI RESPONSE')
                         console.log(resp)
